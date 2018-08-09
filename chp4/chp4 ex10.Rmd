@@ -1,0 +1,74 @@
+---
+title: "chp4 ex10"
+author: "kwon"
+date: "2018년 8월 9일"
+output: html_document
+---
+#10
+```{r}
+require(ISLR)
+dim(Weekly)
+colnames(Weekly)
+```
+
+*a*
+```{r}
+summary(Weekly)
+pairs(Weekly, col=Weekly$Direction)
+cor(Weekly[,-9])
+```
+There are strong positive correlation between Year and Volume.
+
+*b*
+```{r}
+logit = glm(Direction~Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Weekly, family="binomial")
+summary(logit)
+```
+Lag2 seems significant variable with 0.029 p-value.
+
+*c* Compute the confusion matrix and overall fraction of correct
+predictions. Explain what the confusion matrix is telling you
+about the types of mistakes made by logistic regression.
+```{r}
+prob = predict(logit, type="response")
+pred = rep("Down", length(prob))
+pred[prob>0.5] = "Up"
+table(pred, Weekly$Direction)
+```
+It make most of False positive errors.
+
+*d* 
+Now fit the logistic regression model using a training data period
+from 1990 to 2008, with Lag2 as the only predictor. Compute the
+confusion matrix and the overall fraction of correct predictions
+for the held out data (that is, the data from 2009 and 2010).
+
+```{r}
+subset_idx = (Weekly$Year<=2008) & (Weekly$Year>=1990)
+week_logit = glm(Direction~Lag2, data=Weekly, subset=subset_idx, family="binomial")
+summary(week_logit)
+```
+```{r}
+week_prob = predict(week_logit, type="response")
+week_pred = rep("Down", length(week_prob))
+week_pred[week_prob>0.5] = "Up"
+table(week_pred, Weekly$Direction[subset_idx])
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
