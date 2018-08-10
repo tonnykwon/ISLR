@@ -11,7 +11,7 @@ dim(Weekly)
 colnames(Weekly)
 ```
 
-*a*
+**a**
 ```{r}
 summary(Weekly)
 pairs(Weekly, col=Weekly$Direction)
@@ -19,14 +19,14 @@ cor(Weekly[,-9])
 ```
 There are strong positive correlation between Year and Volume.
 
-*b*
+**b**
 ```{r}
 logit = glm(Direction~Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Weekly, family="binomial")
 summary(logit)
 ```
 Lag2 seems significant variable with 0.029 p-value.
 
-*c* Compute the confusion matrix and overall fraction of correct
+**c** Compute the confusion matrix and overall fraction of correct
 predictions. Explain what the confusion matrix is telling you
 about the types of mistakes made by logistic regression.
 ```{r}
@@ -37,24 +37,74 @@ table(pred, Weekly$Direction)
 ```
 It make most of False positive errors.
 
-*d* 
+**d** 
 Now fit the logistic regression model using a training data period
 from 1990 to 2008, with Lag2 as the only predictor. Compute the
 confusion matrix and the overall fraction of correct predictions
 for the held out data (that is, the data from 2009 and 2010).
 
 ```{r}
-subset_idx = (Weekly$Year<=2008) & (Weekly$Year>=1990)
-week_logit = glm(Direction~Lag2, data=Weekly, subset=subset_idx, family="binomial")
+train_idx = (Weekly$Year<=2008) & (Weekly$Year>=1990)
+week_logit = glm(Direction~Lag2, data=Weekly, subset=train_idx, family="binomial")
 summary(week_logit)
 ```
 ```{r}
-week_prob = predict(week_logit, type="response")
+attach(Weekly)
+week_prob = predict(week_logit,newdata = Weekly[!train_idx,-9], type="response")
 week_pred = rep("Down", length(week_prob))
 week_pred[week_prob>0.5] = "Up"
-table(week_pred, Weekly$Direction[subset_idx])
+length(!train_idx)
+table(week_pred, Weekly$Direction[!train_idx])
+mean(week_pred == Direction)
 ```
 
+**e** Repeat (d) using LDA.
+```{r}
+require(MASS)
+week_lda = lda(Direction~Lag2, data=Weekly, subset = train_idx)
+week_lda
+plot(week_lda)
+```
+```{r}
+week_pred = predict(week_lda,newdata = Weekly[!train_idx,-9], type="response")
+table(week_pred$class, Direction[!train_idx])
+mean(week_pred$class==Direction[!train_idx])
+```
+
+**f** Repeat (d) using QDA.
+```{r}
+train_data = Weekly[train_idx, ]
+train_res = Direction[train_idx]
+test_data = Weekly[!train_idx, -9]
+test_res = Direction[!train_idx]
+
+week_qda = qda(Direction~Lag2, data= train_data)
+week_pred = predict(week_qda, newdata = test_data, type="response")
+table(week_pred$class, test_res)
+mean(week_pred$class==test_res)
+```
+
+**g** Repeat (d) using KNN with K = 1.
+```{r}
+train_x = as.matrix(Lag2[train_idx])
+test_x = as.matrix(Lag2[!train_idx])
+require(class)
+week_knn = knn(train_x, test_x, train_res, k=1)
+table(week_knn, test_res)
+mean(week_knn==test_res)
+```
+
+**h** Which of these methods appears to provide the best results on
+this data? \
+LDA has the highest accuracy among used models. \
+
+
+**i** Experiment with different combinations of predictors, including
+possible transformations and interactions, for each of the
+methods. Report the variables, method, and associated confusion
+matrix that appears to provide the best results on the held
+out data. Note that you should also experiment with values for
+K in the KNN classifier.
 
 
 

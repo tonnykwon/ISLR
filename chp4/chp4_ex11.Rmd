@@ -1,0 +1,91 @@
+---
+title: "chp4 ex11"
+author: "kwon"
+date: "2018년 8월 9일"
+output: html_document
+---
+#11. In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the Auto data set.
+(**a**) Create a binary variable, mpg01, that contains a 1 if mpg contains
+a value above its median, and a 0 if mpg contains a value below
+its median. You can compute the median using the median()
+function. Note you may find it helpful to use the data.frame()
+function to create a single data set containing both mpg01 and
+the other `Auto` variables.
+```{r}
+require(ISLR)
+mpg_med = median(Auto$mpg)
+mpg01 = rep(1, dim(Auto)[1])
+mpg01[Auto$mpg<mpg_med]=0
+new_auto = data.frame(mpg01, Auto)
+```
+\
+(b) Explore the data graphically in order to investigate the association
+between mpg01 and the other features. Which of the other
+features seem most likely to be useful in predicting mpg01? Scatterplots
+and boxplots may be useful tools to answer this question.
+Describe your findings.
+```{r}
+str(new_auto)
+pairs(new_auto[,-c(2)], col=new_auto$mpg01)
+cor(new_auto[,-c(1,10)])
+```
+mpg seems to have strong relationship with all other variables.
+Cylinders with displacement, displacement with weight, and so on.
+\
+(c) Split the data into a training set and a test set.
+```{r}
+train_idx = (Auto$year %% 2 == 0)
+train_auto = new_auto[train_idx, -2]
+test_auto = new_auto[-train_idx, -2]
+```
+\
+(d) Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in
+(b). What is the test error of the model obtained?
+```{r}
+str(train_auto)
+require(MASS)
+auto_lda = lda(mpg01~cylinders+displacement+horsepower+weight, data=train_auto)
+lda_pred = predict(auto_lda, test_auto[,-1], type="response")
+mean(as.factor(test_auto[,1])== lda_pred$class)
+```
+\
+(e) Perform QDA on the training data in order to predict mpg01
+using the variables that seemed most associated with mpg01 in
+(b). What is the test error of the model obtained?
+```{r}
+qda_auto = qda(mpg01~cylinders+displacement+horsepower+weight, data=train_auto)
+qda_pred = predict(qda_auto, test_auto[,-1],type="response")
+mean(qda_pred$class == as.factor(test_auto[,1]))
+```
+
+\
+(f) Perform logistic regression on the training data in order to predict
+mpg01 using the variables that seemed most associated with
+mpg01 in (b). What is the test error of the model obtained?
+```{r}
+logit_auto = glm(mpg01~cylinders+displacement+horsepower+weight, data=train_auto, family="binomial")
+logit_prob = predict(logit_auto, newdata =test_auto[,-1], type="response")
+logit_pred = rep(0, length(logit_prob))
+logit_pred[logit_prob>0.5] = 1
+mean(logit_pred==test_auto[,1])
+```
+\
+(g) Perform KNN on the training data, with several values of K, in
+order to predict mpg01. Use only the variables that seemed most
+associated with mpg01 in (b). What test errors do you obtain?
+Which value of K seems to perform the best on this data set?
+```{r}
+require(class)
+std_X=scale(Auto[,-c(1,9)] )
+df_X = as.data.frame(std_X)
+K = c(1,3,5,10)
+train_x = df_X[train_idx,]
+test_x = df_X[!train_idx,]
+train_y = new_auto$mpg01[train_idx]
+
+for(i in 1:length(K)){
+  knn_pred= knn(train_x, test_x, train_y, k=K[i])
+  print(mean(knn_pred==new_auto$mpg01[!train_idx]))
+}
+```
+
