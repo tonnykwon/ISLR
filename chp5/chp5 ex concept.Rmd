@@ -1,0 +1,86 @@
+---
+title: "chp5 ex concept"
+author: "kwon"
+date: "2018년 8월 13일"
+output: html_document
+---
+
+# 1
+
+Using the following rules:
+
+$$ Var(X+Y) = Var(X) + Var(Y) + 2 Cov(X,Y) \\
+\ Var(cX) = c^2 Var(X) \ Cov(cX,Y) = Cov(X,cY) = c Cov(X,Y) $$
+
+Minimizing two-asset financial portfolio: $$ Var(\alpha X + (1 - \alpha)Y) \ = Var(\alpha X) + Var((1 - \alpha) Y) + 2 Cov(\alpha X, (1 - \alpha) Y) 
+\\ = \alpha^2 Var(X) + (1 - \alpha)^2 Var(Y) + 2 \alpha (1 - \alpha) Cov(X, Y) \ 
+\\ = \sigma_X^2 \alpha^2 + \sigma_Y^2 (1 - \alpha)^2 + 2 \sigma_{XY} (-\alpha^2 + \alpha) $$
+
+
+Take the first derivative to find critical points: $$ 0 = \frac {d} {d\alpha} f(\alpha) \
+\\ = 2 \sigma_X^2 \alpha + 2 \sigma_Y^2 (1 - \alpha) (-1) + 2 \sigma_{XY} (-2 \alpha + 1) \ 
+\\ = \sigma_X^2 \alpha + \sigma_Y^2 (\alpha - 1) + \sigma_{XY} (-2 \alpha + 1) 
+\\= (\sigma_X^2 + \sigma_Y^2 - 2 \sigma_{XY}) \alpha - \sigma_Y^2 + \sigma_{XY} \
+\\ \alpha = \frac {\sigma_Y^2 - \sigma_{XY}} {\sigma_X^2 + \sigma_Y^2 - 2 \sigma_{XY}} $$
+
+#2
+## a
+$1 - 1/n$
+
+## b
+$1 - 1/n$
+
+## c
+Each bootstrap sampling has 1/n chance of sampling jth observation, which is independet from each others. Thus, $ (1-1/n)^n$ is the probability of not sampling jth observation.
+
+## d
+1-1/5
+
+## e
+1-1/100
+
+## f
+1-1/10,000
+
+## g
+```{r}
+pr = function(n) return(1 - (1 - 1/n)^n)
+x = 1:100000
+plot(x, pr(x))
+```
+
+## h
+```{r}
+store = rep(NA, 10000)
+for(i in 1:10000){
+  store[i] = sum(sample(1:100, rep=TRUE)==4)>0
+}
+mean(store)
+```
+It shows same results from the above bootstrap sampling.
+
+#3
+##a
+Divide data into k folds, and leave one fold for test data, while use others for training. Repeat this process k times, changing test data from each folds.
+
+##b
+###i
++: CV has relatively low variance, as vaildation set apporach highly depends on observations. And, it uses more data for training, while validation set overestimates the test error.
+\
+-: CV is relatively hard to implement.
+
+###ii
++: It is computationally faster.
+\
+-: Higher bias, and lower variance than LOOCV.
+
+# 4
+We can estimate the standard deviation of our prediction by using bootstrap method. Bootstrap is sampling from data for n times. For each sampling, fit a new model and obtain the estimate. 
+
+
+
+
+
+
+
+
