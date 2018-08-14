@@ -1,0 +1,97 @@
+---
+title: "chp5 ex9"
+author: "kwon"
+date: "2018년 8월 14일"
+output: html_document
+---
+#9 
+We will now consider the Boston housing data set, from the MASS
+library.
+##(a) Based on this data set, provide an estimate for the population
+mean of medv. Call this estimate ˆμ.
+```{r}
+require(MASS)
+mean(Boston$medv)
+```
+
+\
+(b) Provide an estimate of the standard error of ˆμ. Interpret this
+result.
+Hint: We can compute the standard error of the sample mean by
+dividing the sample standard deviation by the square root of the
+number of observations.
+```{r}
+sd(Boston$medv)/sqrt(length(Boston$medv))
+```
+
+\
+(c) Now estimate the standard error of ˆμ using the bootstrap. How
+does this compare to your answer from (b)?
+```{r}
+require(boot)
+boot.fn = function(data, index){
+  return(mean(data[index]))
+}
+
+bootstrp = boot(Boston$medv, boot.fn, 1000)
+bootstrp
+```
+Both results are very close.
+
+\
+(d) Based on your bootstrap estimate from (c), provide a 95% confidence
+interval for the mean of medv. Compare it to the results
+obtained using t.test(Boston$medv).
+Hint: You can approximate a 95% confidence interval using the
+formula [ˆμ − 2SE(ˆμ), ˆμ + 2SE(ˆμ)].
+```{r}
+c(bootstrp$t0 - 2*0.4129857, bootstrp$t0 + 2*0.4129857)
+t.test(Boston$medv)
+```
+Bootstrap results are only about 0.02 away from the t-estimate.
+
+\
+(e) Based on this data set, provide an estimate, ˆμmed, for the median
+value of medv in the population.
+```{r}
+median(Boston$medv)
+boot.med = function(data, index){
+  return(median(data[index]))
+}
+boot_med = boot(Boston$medv, boot.med, 1000)
+boot_med
+```
+Median 21.2 with standard error of 0.39.
+
+\
+(f) We now would like to estimate the standard error of ˆμmed. Unfortunately,
+there is no simple formula for computing the standard
+error of the median. Instead, estimate the standard error of the
+median using the bootstrap. Comment on your findings. \
+Result is on (e).
+
+\
+(g) Based on this data set, provide an estimate for the tenth percentile
+of medv in Boston suburbs. Call this quantity ˆμ0.1. (You
+can use the quantile() function.)
+```{r}
+quantile(Boston$medv, 0.1)
+boot.q10 = function(data,index){
+  return(quantile(data[index], 0.1))
+}
+boot_q10 = boot(Boston$medv, boot.q10, 1000)
+boot_q10
+```
+
+\
+(h) Use the bootstrap to estimate the standard error of ˆμ0.1. Comment
+on your findings. \
+Tenth-quantile is 12.75 with standard error 0.498, which seems relatively small to the value.
+
+
+
+
+
+
+
+
