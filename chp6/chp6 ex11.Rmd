@@ -1,0 +1,39 @@
+---
+title: "chp6 ex11"
+author: "kwon"
+date: "2018년 8월 19일"
+output: html_document
+---
+
+#11
+##(a)
+```{r}
+library(MASS)
+library(glmnet)
+library(leaps)
+```
+
+```{r}
+k = 10
+folds = sample(1:k, nrow(Boston), replace=T)
+for(i in 1:k){
+  glm.best = regsubsets(crim~., data=Boston[folds==i,], nvmax=ncol(Boston))
+}
+
+glm.best = regsubsets(crim~., data=Boston, nvmax=ncol(Boston))
+summary(glm.best)
+regsubsets.predict = function(){
+  
+}
+```
+
+
+
+
+
+
+
+
+
+
+

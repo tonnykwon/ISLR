@@ -1,0 +1,67 @@
+---
+title: "chp6 ex10"
+author: "kwon"
+date: "2018년 8월 19일"
+output: html_document
+---
+
+# 10
+##(a)
+```{r}
+set.seed(1)
+p=20
+n = 1000
+x = matrix(rnorm(n*p), n,p)
+str(x)
+
+B = rnorm(p)
+e = rnorm(p)
+B[c(2,5,7)]=0
+
+Y = x %*% B + e
+```
+
+##(b)
+```{r}
+train = sample(seq(1000), 100, replace=FALSE)
+train.X = x[train,]
+test.X = x[-train,]
+train.y = Y[train]
+test.y = Y[-train]
+```
+
+##(c)
+```{r}
+reg.full = regsubsets(y~.,data=data.frame(x=train.X, y=train.y), nvmax=p)
+reg.sum = summary(reg.full)
+
+val.errors = rep(NA, p)
+x_cols = colnames(x, do.NULL=FALSE, prefix="x.")
+for (i in 1:p) {
+  coefi = coef(reg.full, id=i)
+  pred = as.matrix(train.X[, x_cols %in% names(coefi)]) %*% coefi[names(coefi) %in% x_cols]
+  val.errors[i] = mean((train.y - pred)^2)
+}
+plot(val.errors, ylab="Training MSE", pch=19, type="b")
+
+which.min(val.errors)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

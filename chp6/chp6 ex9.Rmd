@@ -1,0 +1,96 @@
+---
+title: "chp6 ex9"
+author: "kwon"
+date: "2018년 8월 19일"
+output: html_document
+---
+
+# 9
+##(a)
+```{r}
+library(ISLR)
+train = sample(c(TRUE,FALSE), length(College$Private),replace = TRUE)
+data.train = College[train,]
+data.test = College[-train,]
+```
+
+##(b)
+```{r}
+lin.mod = lm(Apps~., data=data.train)
+lin.pred = predict(lin.mod, newdata = data.test)
+mean((lin.pred-data.test$Apps)^2)
+```
+
+##(c)
+```{r}
+library(glmnet)
+train.dat = model.matrix(Apps~., data=data.train)
+test.dat = model.matrix(Apps~., data=data.test)
+grid = 10^seq(10,-2, length=100)
+ridge.mod = cv.glmnet(train.dat, data.train[,"Apps"], alpha=0, lambda=grid)
+
+bestlam = ridge.mod$lambda.min
+ridge.pred = predict(ridge.mod, newx=test.dat, s=bestlam)
+mean((data.test[, "Apps"] - ridge.pred)^2)
+```
+
+##(d)
+```{r}
+lasso.mod = cv.glmnet(train.dat, data.train[,"Apps"], alpha=1, lambda=grid)
+
+bestlam = lasso.mod$lambda.min
+lasso.pred = predict(lasso.mod, newx=test.dat, s=bestlam)
+mean((data.test[, "Apps"] - ridge.pred)^2)
+
+lasso.mod = glmnet(train.dat, data.train[,"Apps"], alpha=1)
+predict(lasso.mod, s=bestlam, type="coefficients")
+
+```
+10 zero coefficient variables
+
+##(e)
+```{r}
+library(pls)
+pcr.fit = pcr(Apps~., data=data.train, scale=T, validation="CV")
+validationplot(pcr.fit, val.type="MSEP")
+pcr.pred = predict(pcr.fit, data.test, ncomp=5)
+mean((data.test[, "Apps"] - data.frame(pcr.pred))^2)
+```
+
+##(f)
+```{r}
+pls.fit = plsr(Apps~., data=data.train, scale=T, validation="CV")
+validationplot(pls.fit, val.type="MSEP")
+pls.pred = predict(pls.fit, data.test, ncomp=7)
+mean((data.test[, "Apps"] - data.frame(pls.pred))^2)
+```
+
+## (g)
+
+```{r}
+test.avg = mean(data.test[, "Apps"])
+lm.test.r2 = 1 - mean((data.test[, "Apps"] - lin.pred)^2) /mean((data.test[, "Apps"] - test.avg)^2)
+ridge.test.r2 = 1 - mean((data.test[, "Apps"] - ridge.pred)^2) /mean((data.test[, "Apps"] - test.avg)^2)
+lasso.test.r2 = 1 - mean((data.test[, "Apps"] - lasso.pred)^2) /mean((data.test[, "Apps"] - test.avg)^2)
+pcr.test.r2 = 1 - mean((data.test[, "Apps"] - data.frame(pcr.pred))^2) /mean((data.test[, "Apps"] - test.avg)^2)
+pls.test.r2 = 1 - mean((data.test[, "Apps"] - data.frame(pls.pred))^2) /mean((data.test[, "Apps"] - test.avg)^2)
+barplot(c(lm.test.r2, ridge.test.r2, lasso.test.r2, pcr.test.r2, pls.test.r2), col="red", names.arg=c("OLS", "Ridge", "Lasso", "PCR", "PLS"), main="Test R-squared")
+```
+PCR shows smalletst test R^2, while other models have similar R^2 values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,98 @@
+---
+title: "chp6 ex8"
+author: "kwon"
+date: "2018년 8월 19일"
+output: html_document
+---
+
+#8
+##(a)
+```{r}
+X = rnorm(100)
+e = rnorm(100)
+```
+
+##(b)
+```{r}
+beta0 = 10
+beta1 = 5
+beta2 = 4
+beta3 = 12
+Y = beta0+beta1*X + beta2*X^2 + beta3*X^3+e
+```
+
+##(c)
+```{r}
+library(leaps)
+dataset = data.frame("y"=Y, "x"= X)
+reg.full = regsubsets(y~poly(x, 10, raw=T), data=dataset, nvmax=10)
+reg.sum = summary(reg.full)
+
+plot(reg.full, scale="r2")
+plot(reg.full, scale="adjr2")
+plot(reg.full, scale="Cp")
+plot(reg.full, scale="bic")
+
+which.min(reg.sum$adjr2)
+which.min(reg.sum$cp)
+which.min(reg.sum$bic)
+```
+It turns out based on cp and bic, 3 coefficents are the best.
+```{r}
+coefficients(reg.full, id=3)
+```
+
+##(d)
+```{r}
+reg.fwd = regsubsets(y~poly(x, 10, raw=T), data=dataset, nvmax=10, method="forward")
+reg.sum = summary(reg.fwd)
+
+which.min(reg.sum$adjr2)
+which.min(reg.sum$cp)
+which.min(reg.sum$bic)
+
+reg.bwd = regsubsets(y~poly(x, 10, raw=T), data=dataset, nvmax=10, method="backward")
+reg.sum = summary(reg.bwd)
+
+which.min(reg.sum$adjr2)
+which.min(reg.sum$cp)
+which.min(reg.sum$bic)
+```
+
+##(e)
+```{r}
+library(glmnet)
+grid = 10^seq(10, -2, length=100)
+xmat = model.matrix(y~poly(x,10), data=dataset)[,-1]
+ridge.mod = cv.glmnet(xmat,Y, alpha = 1, lambda=grid)
+
+bestlam=  ridge.mod$lambda.min
+plot(ridge.mod)
+
+best.lasso = glmnet(xmat,Y, alpha=1, lambda=bestlam)
+predict(best.lasso, s=bestlam, type="coefficients")
+```
+
+## (f)
+```{r}
+beta7=3
+Y = beta0 + beta7*X^7+e
+dataset = data.frame("y"=Y, "x"=X)
+reg.full = regsubsets(y~poly(x,10, raw=T), data=dataset, nvmax=10)
+
+reg.sum = summary(reg.full)
+which.max(reg.sum$adjr2)
+which.min(reg.sum$cp)
+which.min(reg.sum$bic)
+
+coefficients(reg.full, id=3)
+coefficients(reg.full, id=2)
+coefficients(reg.full, id=2)
+```
+
+
+
+
+
+
+
