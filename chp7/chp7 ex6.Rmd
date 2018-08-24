@@ -1,0 +1,64 @@
+---
+title: "chp7 ex6"
+author: "kwon"
+date: "2018년 8월 23일"
+output: html_document
+---
+
+#6
+##a
+```{r}
+require(ISLR)
+library(boot)
+attach(Wage)
+
+cv.error=rep(0,5)
+for(i in 1:5){
+  glm.fit = glm(wage~poly(age,i), data=Wage)
+  cv.error[i] = cv.glm(Wage, glm.fit, K=10)$delta[1]
+}
+plot(1:5, cv.error, xlab="Degree", ylab="CV error", type="l", pch=20, lwd=2, ylim=c(1590, 1700))
+
+```
+
+##b
+```{r}
+cv.error=2:10
+for(i in 2:10){
+  Wage$cut = cut(age,i)
+  glm.fit = glm(wage~cut, data=Wage)
+  cv.error[i] = cv.glm(Wage, glm.fit, K=10)$delta[1]
+}
+plot(2:10, cv.error[-1], xlab="Degree", ylab="CV error", type="l", pch=20, lwd=2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

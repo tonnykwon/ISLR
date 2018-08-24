@@ -1,0 +1,76 @@
+---
+title: "chp7 ex9"
+author: "kwon"
+date: "2018년 8월 23일"
+output: html_document
+---
+
+#9
+##a
+```{r}
+library(ISLR)
+library(MASS)
+lm.fit = lm(nox~poly(dis,3), data=Boston)
+summary(lm.fit)
+
+dislim = range(Boston$dis)
+dis.grid = seq(from=dislim[1], to =dislim[2], by=0.1)
+lm.preds = predict(lm.fit, list(dis=dis.grid))
+plot(Boston$dis, Boston$nox, col="darkgrey", pch=20)
+lines(dis.grid, lm.preds, col="blue", lwd=2)
+```
+
+##b
+
+```{r}
+poly.rss = rep(0,10)
+for(i in 1:10){
+  lm.fit = lm(nox~poly(dis,i), data=Boston)
+  result= summary(lm.fit)
+  poly.rss[i] = sum(result$residuals^2)
+}
+plot(poly.rss)
+```
+
+##c
+```{r}
+rss = rep(0,10)
+for(i in 1:10){
+  glm.fit = glm(nox~poly(dis,i), data=Boston)
+  rss[i]=cv.glm(Boston, glm.fit, K=10)$delta[2]
+}
+plot(rss)
+```
+
+##d
+bs() function to fit regression spline
+```{r}
+attach(Boston)
+fit = lm(nox~bs(dis, df=4, knots = c(4,6,9)), data=Boston)
+summary(fit)
+pred = predict(fit, newdata=list(dis=dis.grid), se=T)
+plot(nox~dis, col="gray", pch=20)
+lines(dis.grid, pred$fit, lwd=2)
+```
+
+##e
+```{r}
+all.cv = rep(0,16)
+for(i in 3:16){
+  lm.fit = lm(nox~bs(dis, df=i), data=Boston)
+  all.cv[i]= sum(lm.fit$residuals^2)
+}
+plot(all.cv[-c(1,2)])
+```
+
+
+
+
+
+
+
+
+
+
+
+

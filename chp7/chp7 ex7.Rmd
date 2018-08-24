@@ -1,0 +1,45 @@
+---
+title: "chp7 ex7"
+author: "kwon"
+date: "2018년 8월 23일"
+output: html_document
+---
+
+```{r}
+library(ISLR)
+attach(Wage)
+plot(wage, maritl)
+plot(wage, jobclass)
+```
+```{r}
+library(splines)
+fit = lm(wage~maritl, data=Wage)
+summary(fit)
+
+fit = lm(wage~jobclass, data=Wage)
+summary(fit)
+
+fit = lm(wage~jobclass+maritl, data=Wage)
+summary(fit)
+```
+
+```{r}
+library(gam)
+gam.m1 = gam(wage~jobclass, data=Wage)
+gam.m2 = gam(wage~jobclass+maritl, data=Wage)
+gam.m3 = gam(wage~jobclass+maritl+s(year,4), data=Wage)
+anova(gam.m1,gam.m2,gam.m3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

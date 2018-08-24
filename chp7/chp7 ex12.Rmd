@@ -1,0 +1,75 @@
+---
+title: "chp7 ex12"
+author: "kwon"
+date: "2018년 8월 23일"
+output: html_document
+---
+
+```{r}
+set.seed(1)
+p = 100
+n = 1000
+X = matrix(rnorm(n*p),n)
+beta = matrix(rnorm(p))
+eps = rnorm(n)
+Y = X %*% beta +eps
+dim(Y)
+```
+
+```{r}
+iter = 100
+errors = rep(0, iter)
+beta_hat = rep(0,p)
+for(i in 1:iter){
+  for(j in 1:p){
+    a = Y - X%*% beta_hat + beta_hat[j]*X[,j]
+    beta_hat[j] = lm(a~X[,j])$coef[2]
+  }
+  errors[i] = sum((Y-X%*%beta_hat)^2)
+  print(c(i,errors[i]))
+}
+```
+
+```{r}
+plot(1:100, errors, ylim=c(800,1000))
+```
+
+
+```{r}
+set.seed(1)
+p = 100
+n = 1000
+x = matrix(ncol=p, nrow=n)
+coefi = rep(NA, p)
+for (i in 1:p) {
+  x[,i] = rnorm(n)
+  coefi[i] = rnorm(1) * 100
+}
+y = x %*% coefi + rnorm(n)
+beta = rep(0, p)
+max_iterations = 1000
+errors = rep(NA, max_iterations + 1)
+iter = 2
+errors[1] = Inf
+errors[2] = sum((y - x %*% beta)^2)
+threshold = 0.0001
+while (iter < max_iterations && errors[iter-1] - errors[iter] > threshold) {
+  for (i in 1:p) {
+    a = y - x %*% beta + beta[i] * x[,i] 
+    beta[i] = lm(a~x[,i])$coef[2]
+  }
+  iter = iter + 1
+  errors[iter] = sum((y - x %*% beta)^2)
+  print(c(iter-2, errors[iter-1], errors[iter]))
+}
+
+plot(1:11, errors[3:13])
+
+```
+
+
+
+
+
+
+
