@@ -1,0 +1,6 @@
+---
+title: "chp8 ex9"
+author: "kwon"
+date: "2018년 8월 25일"
+output: html_document
+---

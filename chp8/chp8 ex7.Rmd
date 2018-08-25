@@ -1,0 +1,106 @@
+---
+title: "chp8 ex7"
+author: "kwon"
+date: "2018년 8월 25일"
+output: html_document
+---
+
+#7
+```{r}
+library(ISLR)
+library(randomForest)
+library(MASS)
+
+# train test split
+train = sample(1:nrow(Boston), nrow(Boston)/3)
+
+# range of mtry and ntree
+p = ncol(Boston)
+mtrys= c(p, p/2, sqrt(p))
+ntrees = seq(1,500, 10)
+
+test.error = matrix(nrow=length(mtrys), ncol=length(ntrees))
+
+for(i in 1:length(mtrys)){
+  for(j in 1:length(ntrees)){
+    bag.boston = randomForest(medv~., data=Boston[train,], mtry=i, ntree=j)
+  yhat.bag = predict(bag.boston, newdata=Boston[-train,])
+  test.error[i,j] = mean((yhat.bag-Boston$medv[-train])^2)
+  }
+}
+
+plot(ntrees,test.error[1,], type="l", col="red", lwd=2, ylim=c(20,50))
+lines(ntrees,test.error[2,], type="l", col="blue", lwd=2)
+lines(ntrees,test.error[3,], type="l", col="green", lwd=2)
+legend("topright", c("m=p", "m=p/2", "m=sqrt(p)"), col=c("red","blue", "green"), cex=1, lty=1)
+```
+The randomfrest with m=sqrt(p) predictors show the lowest test error on average. Moreover, up to 50~100 trees, the error decreases drastically while after that, it stop decrasing errors.
+
+
+#8
+##a, b
+```{r}
+library(tree)
+n = nrow(Carseats)
+train = sample(1:n, 300)
+tree.car = tree(Sales~., data=Carseats, subset=train)
+preds = predict(tree.car)
+mean((preds-Carseats$Sales[-train])^2)
+
+summary(tree.car)
+plot(tree.car)
+text(tree.car, pretty=0)
+```
+6 Predictors are used with test error of 14.7.
+
+##c
+```{r}
+cv.car =cv.tree(tree.car, FUN=prune.tree)
+plot(cv.car$size, cv.car$dev, type="b")
+
+# size of 5 shows lowest dev
+prune.car = prune.tree(tree.car, best=5)
+preds = predict(prune.car, Carseats[-train,])
+mean((preds-Carseats$Sales[-train])^2)
+```
+With test error 5.3, pruning definitely decreased the error. 
+
+##d
+```{r}
+dim(Carseats)
+p = ncol(Carseats)-1
+bag.car = randomForest(Sales~., data=Carseats, subset = train, mtrys=p, importance=TRUE)
+
+preds = predict(bag.car, newdata = Carseats[-train,])
+mean((preds-Carseats$Sales[-train])^2)
+importance(bag.car)
+
+```
+MSE is 2.7, and CompPrice came out to be the most important predictor among variables.
+
+##e
+```{r}
+rf.car = randomForest(Sales~., data=Carseats, subset = train, mtrys=sqrt(p), importance=TRUE)
+preds = predict(rf.car, newdata = Carseats[-train,])
+mean((preds-Carseats$Sales[-train])^2)
+importance(rf.car)
+```
+
+MSE is 2.8 and CompPrice.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
