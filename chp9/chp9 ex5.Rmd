@@ -1,0 +1,66 @@
+---
+title: "chp9 ex5"
+author: "kwon"
+date: "2018년 8월 27일"
+output: html_document
+---
+
+#5
+##a
+```{r}
+set.seed(1)
+x1 = runif(500)-0.5
+x2= runif(500)-0.5
+y=1*(x1^2-x2^2>0)
+```
+
+##b
+```{r}
+plot(x1,x2, col=as.factor(y))
+```
+
+##c
+```{r}
+dat = data.frame(x1,x2, y=y)
+log.fit = glm(y~., data=dat, family= binomial)
+```
+
+##d
+```{r}
+log.prob = predict(log.fit, dat, type ="response")
+log.pred = ifelse(log.prob> 0.5, 1, 0)
+
+pos = dat[log.pred ==1,]
+neg = dat[log.pred==0, ]
+plot(neg$x1, neg$x2, col="red", xlim=c(-0.5,0.5), ylim=c(-0.5, 0.5))
+points(pos$x1, pos$x2, col="blue")
+
+```
+##e
+```{r}
+log.poly = glm(y~x1+x2+I(x1^2)+I(x2^2), data= dat, family=binomial)
+```
+##f
+```{r}
+log.prob = predict(log.poly, dat, type ="response")
+log.pred = ifelse(log.prob> 0.5, 1, 0)
+
+pos = dat[log.pred ==1,]
+neg = dat[log.pred==0, ]
+plot(neg$x1, neg$x2, col="red", xlim=c(-0.5,0.5), ylim=c(-0.5, 0.5))
+points(pos$x1, pos$x2, col="blue")
+```
+
+##g
+```{r}
+library(e1071)
+svm.fit = svm(as.factor(y)~., data= dat, kernel="linear", scale=FALSE)
+plot(svm.fit, dat)
+```
+
+##h
+```{r}
+library(e1071)
+svm.fit = svm(as.factor(y)~., data= dat, kernel="radial", gamma=1, cost=10,scale=FALSE)
+plot(svm.fit, dat)
+```

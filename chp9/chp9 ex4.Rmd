@@ -1,0 +1,33 @@
+---
+title: "chp9 ex4"
+author: "kwon"
+date: "2018년 8월 27일"
+output: html_document
+---
+
+#4
+```{r}
+set.seed(1)
+x = matrix(rnorm(100*2), ncol=2)
+y = c(rep(1,50), rep(2, 50))
+x[1:25,] = x[1:25,] +2
+x[26:50, ] = x[26:50,]-2
+
+train = sample(1:100, 50) 
+
+dat = data.frame(X =x, y=as.factor(y))
+svmlin = svm(y~., data = dat[train,], kernel="linear", scale=FALSE)
+plot(svmlin, dat[train,])
+
+svmpoly = svm(y~., data= dat[train,], kernel="polynomial", d=2)
+plot(svmpoly, dat[train,])
+
+predlin = predict(svmlin, dat[-train,])
+predpoly = predict(svmpoly, dat[-train,])
+table(predict=dat[-train, 3], truth = predlin)
+table(predict=dat[-train, 3], truth = predpoly)
+```
+
+
+
+
