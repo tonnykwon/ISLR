@@ -1,0 +1,56 @@
+---
+title: "chp8 ex10"
+author: "kwon"
+date: "2018년 8월 25일"
+output: html_document
+---
+
+#10
+##a
+```{r}
+library(ISLR)
+sum(is.na(Hitters$Salary))
+Hitters= Hitters[-which(is.na(Hitters$Salary)),]
+sum(is.na(Hitters$Salary))
+```
+##b
+```{r}
+n =nrow(Hitters)
+train = 1:200
+```
+
+##c, d
+```{r}
+library(gbm)
+lambda = seq(0.01, 0.1, 0.01)
+errors = 1:length(lambda)
+set.seed(1)
+for(i in 1:length(lambda)){
+  boost.hit = gbm(Salary~., data=Hitters[train,], distribution = "gaussian", n.trees = 1000, shrinkage = lambda[i])
+  preds = predict(boost.hit, newdata=Hitters[-train,], n.trees=1000)
+  errors[i]=mean((preds-Hitters$Salary[-train]))
+}
+plot(lambda,errors)
+```
+
+##e
+```{r}
+lm.fit = lm(Salary~., data=Hitters[train,])
+preds = predict(lm.fit, Hitters[-train,])
+mean((Hitters$Salary[-train]-preds)^2)
+
+library(glmnet)
+set.seed(1)
+x = model.matrix(Salary~., data=Hitters[train,])
+y = Hitters[train,]$Salary
+x.test = model.matrix(Salary~., data=Hitters[-train,])
+lasso.fit = glmnet(x,y,alpha=1)
+preds = predict(lasso.fit, s=0.01, newx=x.test)
+mean((preds-Hitters$Salary[-train])^2)
+```
+
+##f
+```{r}
+
+```
+

@@ -4,3 +4,82 @@ author: "kwon"
 date: "2018년 8월 25일"
 output: html_document
 ---
+
+#9
+##a
+```{r}
+library(ISLR)
+n=nrow(OJ)
+train = sample(1:n, 800)
+str(OJ)
+```
+
+##b
+```{r}
+tree.oj = tree(Purchase~., data=OJ, subset=train)
+summary(tree.oj)
+preds = predict(tree.oj, newdata= OJ[train,],type="class")
+table(preds, OJ$Purchase[train])
+(440+218)/800
+```
+Training error is 82%, and it has 6 terminal nodes. Three variables are used.
+
+##c, d
+```{r}
+plot(tree.oj)
+text(tree.oj, pretty=0)
+```
+The left corner subtree means the data with LoyalCH value less tahn 0.13 are classified as MM.
+
+##e
+```{r}
+preds = predict(tree.oj, newdata= OJ[-train,], type="class")
+table(preds, OJ$Purchase[-train])
+(152+63)/250
+```
+
+##f, g
+```{r}
+cv.oj = cv.tree(tree.oj)
+plot(cv.oj$size, cv.oj$dev)
+```
+tree with size of 5 shows the lowest error.
+
+##h
+5
+
+##i,j
+```{r}
+prune.oj = cv.tree(tree.oj, FUN= prune.misclass, best=5)
+summary(prune.oj)
+1-0.1775
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
