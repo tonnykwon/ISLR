@@ -1,0 +1,31 @@
+---
+title: "chp9 ex7"
+author: "kwon"
+date: "2018년 8월 27일"
+output: html_document
+---
+
+#7
+##a
+```{r}
+data(Auto)
+med = median(Auto$mpg)
+y= ifelse(Auto$mpg>med,1,0)
+Auto =cbind(Auto)
+```
+
+##b
+```{r}
+tune.out = tune(y~.-mpg, data=Auto, kernel="linear", ranges= list(cost=c(0.001, 0.01, 0.1, 1, 10)))
+```
+
+
+
+
+
+
+
+
+
+
+

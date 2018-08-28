@@ -1,0 +1,41 @@
+---
+title: "chp9 ex6"
+author: "kwon"
+date: "2018년 8월 27일"
+output: html_document
+---
+
+#6
+##a
+```{r}
+set.seed(1)
+x = matrix(rnorm(100*2), ncol= 2)
+x[1:25,1] =x[1:25,1]+2
+x[26:50,2] = x[26:50,2]-2
+y= c(rep(1,50), rep(2, 50))
+
+plot(x[,1], x[,2], col=as.factor(y+1))
+```
+
+##b
+```{r}
+set.seed(1)
+dat = data.frame(x=x, y=as.factor(y))
+tune.out = tune(svm, y~., data=dat, kernel="linear", ranges=list(cost=c(0.001, 0.01, 0.1, 1, 5, 10, 100)))
+summary(tune.out)
+```
+
+##c
+```{r}
+set.seed(1)
+x.test = matrix(rnorm(100*2), ncol= 2)
+x.test[1:25,1] =x.test[1:25,1]+2
+x.test[26:50,2] = x.test[26:50,2]-2
+y.test= c(rep(1,50), rep(2, 50))
+
+testdat = data.frame(x=x.test, y=y.test)
+
+preds = predict(tune.out$best.model, data=testdat)
+table(predict=preds, truth = y.test)
+```
+
